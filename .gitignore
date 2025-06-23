@@ -63,3 +63,4 @@ sysinfo.txt
 # Microsoft Office temporary files
 ~*
 
+*.meta

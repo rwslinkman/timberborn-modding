@@ -4,6 +4,8 @@
   "Id": "PrometheusExporter",
   "MinimumGameVersion": "0.0.0.0",
   "Description": "Exports data about beavers in Prometheus format on a local HTTP port",
-  "RequiredMods": [],
+  "RequiredMods": [
+     { "Id": "Harmony" }
+  ],
   "OptionalMods": []
 }
