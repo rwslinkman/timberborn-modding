@@ -1,7 +1,9 @@
 using Bindito.Core;
+using HarmonyLib;
 using PrometheusExporter.Metrics;
 using PrometheusExporter.Settings;
 using Timberborn.ModManagerScene;
+using UnityEngine;
 
 namespace PrometheusExporter
 {
