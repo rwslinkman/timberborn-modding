@@ -9,6 +9,8 @@ namespace PrometheusExporter.Settings
     class PrometheusExporterModSettings : ModSettingsOwner
     {
         protected override string ModId => "PrometheusExporter";
+        public override ModSettingsContext ChangeableOn { get; } = ModSettingsContext.All;
+
 
         public ModSetting<int> SamplesPerDay { get; } = new RangeIntModSetting(
           defaultValue: 3,
@@ -19,10 +21,8 @@ namespace PrometheusExporter.Settings
           )
         );
 
-        public ModSetting<int> HttpPort { get; } = new RangeIntModSetting(
+        public ModSetting<int> HttpPort { get; } = new (
             defaultValue: 8080,
-            minValue: 6000,
-            maxValue: 60000,
             descriptor: ModSettingDescriptor.CreateLocalized(
                 "rwslinkman.PrometheusExporter.Settings.HttpPort"
             )

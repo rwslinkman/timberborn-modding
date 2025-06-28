@@ -1,5 +1,4 @@
 using Bindito.Core;
-using HarmonyLib;
 using PrometheusExporter.Metrics;
 using PrometheusExporter.Settings;
 using Timberborn.ModManagerScene;
@@ -7,20 +6,6 @@ using UnityEngine;
 
 namespace PrometheusExporter
 {
-    public class ModStarter : IModStarter
-    {
-        public void StartMod(IModEnvironment modEnvironment)
-        {
-            var playerLogPath = Application.persistentDataPath + "/Player.log";
-            Debug.Log("Hello World, but in the Player.log file at: " + playerLogPath);
-        }
-
-        void IModStarter.StartMod(IModEnvironment modEnvironment)
-        {
-            new Harmony(nameof(PrometheusExporter)).PatchAll();
-        }
-    }
-
     [Context("MainMenu")]
     public class ModMainMenuConfigurator : IConfigurator
     {

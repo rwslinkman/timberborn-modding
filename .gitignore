@@ -9,6 +9,8 @@
 /Assets/AssetStoreTools*
 /Assets/Plugins/Timberborn/
 /Assets/Plugins/Timberborn.meta
+/Assets/Plugins/TimberbornMods/
+/Assets/Plugins/TimberbornMods.meta
 /Assets/Plugins/Shaders/
 /Assets/Plugins/Shaders.meta
 
@@ -64,3 +66,4 @@ sysinfo.txt
 ~*
 
 *.meta
+.DS_STORE
