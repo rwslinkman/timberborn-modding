@@ -2,7 +2,6 @@ using ModSettings.Common;
 using ModSettings.Core;
 using Timberborn.Modding;
 using Timberborn.SettingsSystem;
-using Timberborn.SingletonSystem;
 
 namespace PrometheusExporter.Settings
 {

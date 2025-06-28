@@ -7,22 +7,22 @@ namespace PrometheusExporter.Metrics
     class SampleTimeCalculator
     {
 
-        private readonly PrometheusExporterModSettings _goodStatisticsSettings;
-        private readonly IDayNightCycle _dayNightCycle;
+        private readonly PrometheusExporterModSettings settings;
+        private readonly IDayNightCycle dayNightCycle;
 
         public SampleTimeCalculator(
             PrometheusExporterModSettings modSettings,
             IDayNightCycle dayNightCycle
         )
         {
-            _goodStatisticsSettings = modSettings;
-            _dayNightCycle = dayNightCycle;
+            this.settings = modSettings;
+            this.dayNightCycle = dayNightCycle;
         }
 
         public float CalculateNextSampleTime()
         {
-            var partialDayNumber = _dayNightCycle.PartialDayNumber;
-            var samplesPerDay = _goodStatisticsSettings.SamplesPerDay.Value;
+            var partialDayNumber = this.dayNightCycle.PartialDayNumber;
+            var samplesPerDay = this.settings.SamplesPerDay.Value;
             var sampleInterval = 1f / samplesPerDay;
             var nextSample = Mathf.Ceil(partialDayNumber / sampleInterval) * sampleInterval;
             if (Mathf.Approximately(nextSample, partialDayNumber))

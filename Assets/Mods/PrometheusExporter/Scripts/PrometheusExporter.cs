@@ -1,8 +1,7 @@
 using Bindito.Core;
+using PrometheusExporter.Http;
 using PrometheusExporter.Metrics;
 using PrometheusExporter.Settings;
-using Timberborn.ModManagerScene;
-using UnityEngine;
 
 namespace PrometheusExporter
 {
@@ -20,9 +19,11 @@ namespace PrometheusExporter
     {
         public void Configure(IContainerDefinition containerDefinition)
         {
-            // TODO: Tick handler that sends sampling events with EventBus
+            containerDefinition.Bind<PrometheusExporterModSettings>().AsSingleton();
+            containerDefinition.Bind<SampleTimeCalculator>().AsSingleton();
+            containerDefinition.Bind<CollectorSamplingTrigger>().AsSingleton();
+            containerDefinition.Bind<ExporterHttpServer>().AsSingleton();
             containerDefinition.Bind<MetricsCollector>().AsSingleton();
-            // TODO: http server singleton that handles /metrics requests & handle metrics-collectedEvent
         }
     }
 }
