@@ -12,7 +12,7 @@ namespace PrometheusExporter.Http
 {
     class ExporterHttpServer : ILoadableSingleton
     {
-        private PrometheusExporterModSettings settings;
+        private readonly PrometheusExporterModSettings settings;
         private readonly EventBus eventBus;
         private HttpListener listener;
         private Thread listenerThread;
@@ -47,7 +47,10 @@ namespace PrometheusExporter.Http
         [OnEvent]
         public void OnMetricsCollected(MetricsCollectedEvent metricsEvent)
         {
-            this.metricsCollection.IncrementGauge("sample_count", metricsEvent.sampleNumber);
+            this.metricsCollection.IncrementCounter(TimberbornPrometheusMetrics.SampleCount);
+
+            var updater = new PrometheusMetricUpdater();
+            updater.updateMetricCollection(metricsEvent, metricsCollection);
         }
 
         private void startListener()

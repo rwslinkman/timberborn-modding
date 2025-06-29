@@ -6,6 +6,9 @@ namespace PrometheusExporter.Http
     public class PrometheusMetricsCollection
     {
         private readonly Dictionary<string, double> _gauges = new();
+        private readonly Dictionary<string, double> _counters = new();
+
+        // ==== GAUGE ====
 
         public void SetGauge(string name, double value)
         {
@@ -14,14 +17,8 @@ namespace PrometheusExporter.Http
 
         public void IncrementGauge(string name, double delta = 1.0)
         {
-            if (_gauges.TryGetValue(name, out var current))
-            {
-                _gauges[name] = current + delta;
-            }
-            else
-            {
-                _gauges[name] = delta;
-            }
+            _gauges.TryGetValue(name, out var current);
+            _gauges[name] = current + delta;
         }
 
         public void DecrementGauge(string name, double delta = 1.0)
@@ -29,16 +26,32 @@ namespace PrometheusExporter.Http
             IncrementGauge(name, -delta);
         }
 
+        // ==== COUNTER ====
+
+        public void IncrementCounter(string name, double amount = 1.0)
+        {
+            _counters.TryGetValue(name, out var current);
+            _counters[name] = current + amount;
+        }
+
+        // ==== EXPORT ====
+
         public string Collect()
         {
             var sb = new StringBuilder();
-            foreach (var entry in _gauges)
+
+            foreach (var kv in _gauges)
             {
-                string sanitized = Sanitize(entry.Key);
-                sb.AppendLine($"# TYPE {sanitized} gauge");
-                sb.Append(sanitized);
-                sb.Append(' ');
-                sb.AppendLine(entry.Value.ToString());
+                string name = Sanitize(kv.Key);
+                sb.AppendLine($"# TYPE {name} gauge");
+                sb.Append(name).Append(" ").AppendLine(kv.Value.ToString());
+            }
+
+            foreach (var kv in _counters)
+            {
+                string name = Sanitize(kv.Key);
+                sb.AppendLine($"# TYPE {name} counter");
+                sb.Append(name).Append(" ").AppendLine(kv.Value.ToString());
             }
             return sb.ToString();
         }
