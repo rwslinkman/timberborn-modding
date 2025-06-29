@@ -40,8 +40,8 @@ namespace PrometheusExporter.Metrics
 
         private void EmitCollectMetricsEvent()
         {
-            // TODO: emit CollectMetrics event and catch it in MetricsCollector
             Debug.Log("Emit event to collect metrics");
+            this.eventBus.Post(new CollectMetricsCommand());
         }
     }
 }

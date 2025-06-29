@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using PrometheusExporter.Metrics;
 using PrometheusExporter.Settings;
 using Timberborn.SingletonSystem;
 using UnityEngine;
@@ -15,21 +16,23 @@ namespace PrometheusExporter.Http
         private readonly EventBus eventBus;
         private HttpListener listener;
         private Thread listenerThread;
+        private PrometheusMetricsCollection metricsCollection;
 
 
         public ExporterHttpServer(PrometheusExporterModSettings modSettings, EventBus bus)
         {
             this.settings = modSettings;
             this.eventBus = bus;
+            this.metricsCollection = new PrometheusMetricsCollection();
         }
 
-        // TODO: subscribe to metrics-collected events
         public void Load()
         {
             var port = settings.HttpPort.Value;
-            Debug.Log("Start HTTP server for PromExporter");
+
+            // Start http listener
             listener = new HttpListener();
-            listener.Prefixes.Add("http://localhost:"+ port +"/");
+            listener.Prefixes.Add("http://localhost:" + port + "/");
             listener.Prefixes.Add("http://127.0.0.1:" + port + "/");
             listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
             listener.Start();
@@ -37,6 +40,14 @@ namespace PrometheusExporter.Http
             listenerThread = new Thread(startListener);
             listenerThread.Start();
             Debug.Log("Prometheus HTTP Server Started");
+
+            eventBus.Register(this);
+        }
+
+        [OnEvent]
+        public void OnMetricsCollected(MetricsCollectedEvent metricsEvent)
+        {
+            this.metricsCollection.IncrementGauge("sample_count", metricsEvent.sampleNumber);
         }
 
         private void startListener()
@@ -54,13 +65,9 @@ namespace PrometheusExporter.Http
             var request = context.Request;
             var response = context.Response;
 
-            Debug.Log("Method: " + request.HttpMethod);
-            Debug.Log("LocalUrl: " + request.Url.LocalPath);
-
             if (request.Url.AbsolutePath == "/metrics")
             {
-                string body = "# HELP sample_metric Example metric\nsample_metric 1\n";
-                // TODO: export real metrics
+                string body = this.metricsCollection.Collect();
                 byte[] buffer = Encoding.UTF8.GetBytes(body);
                 response.ContentType = "text/plain; version=0.0.4";
                 response.ContentLength64 = buffer.Length;
