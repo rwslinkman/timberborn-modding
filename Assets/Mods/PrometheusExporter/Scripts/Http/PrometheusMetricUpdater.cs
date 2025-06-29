@@ -6,7 +6,19 @@ namespace PrometheusExporter.Http
     {
         public void updateMetricCollection(MetricsCollectedEvent data, PrometheusMetricsCollection metrics)
         {
-            // TODO: update 'metrics' by name with new 'data'
+            metrics.SetGauge(TimberbornPrometheusMetrics.SciencePoints, data.SciencePoints);
+            metrics.SetGauge(TimberbornPrometheusMetrics.TotalBeaverCount, data.TotalBeaverCount);
+            metrics.SetGauge(TimberbornPrometheusMetrics.AdultBeaverCount, data.AdultBeaverCount);
+            metrics.SetGauge(TimberbornPrometheusMetrics.ChildBeaverCount, data.ChildBeaverCount);
+            metrics.SetGauge(TimberbornPrometheusMetrics.TotalBotCount, data.TotalBotCount);
+            foreach (var pair in data.GoodAmounts)
+            {
+                string goodName = pair.Key;
+                int amount = pair.Value;
+
+                var metricName = TimberbornPrometheusMetrics.GoodAmount + "_" + goodName.ToLower();
+                metrics.SetGauge(metricName, amount);
+            }
         }
     }
 }
