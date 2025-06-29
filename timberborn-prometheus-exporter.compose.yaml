@@ -1,0 +1,26 @@
+services:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    expose:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./prometheus/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./prometheus/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true

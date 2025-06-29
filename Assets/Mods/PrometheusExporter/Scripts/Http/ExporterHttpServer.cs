@@ -32,8 +32,7 @@ namespace PrometheusExporter.Http
 
             // Start http listener
             listener = new HttpListener();
-            listener.Prefixes.Add("http://localhost:" + port + "/");
-            listener.Prefixes.Add("http://127.0.0.1:" + port + "/");
+            listener.Prefixes.Add("http://*:" + port + "/");
             listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
             listener.Start();
 
