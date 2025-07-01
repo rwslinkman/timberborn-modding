@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using PrometheusExporter.Http.Model;
 using PrometheusExporter.Metrics;
 using PrometheusExporter.Settings;
 using Timberborn.SingletonSystem;
@@ -46,7 +47,7 @@ namespace PrometheusExporter.Http
         [OnEvent]
         public void OnMetricsCollected(MetricsCollectedEvent metricsEvent)
         {
-            this.metricsCollection.IncrementCounter(TimberbornPrometheusMetrics.SampleCount);
+            this.metricsCollection.Increment(PrometheusMetrics.Counter(TimberbornMetrics.SampleCount));
 
             var updater = new PrometheusMetricUpdater();
             updater.updateMetricCollection(metricsEvent, metricsCollection);

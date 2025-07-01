@@ -1,65 +1,93 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Moq;
+using PrometheusExporter.Http.Model;
+using Timberborn.Common;
 
 namespace PrometheusExporter.Http
 {
     public class PrometheusMetricsCollection
     {
-        private readonly Dictionary<string, double> _gauges = new();
-        private readonly Dictionary<string, double> _counters = new();
+        private readonly Dictionary<(string, string), MetricData> _metrics = new();
 
-        // ==== GAUGE ====
-
-        public void SetGauge(string name, double value)
+        internal void Set(MetricData metric)
         {
-            _gauges[name] = value;
+            _metrics[MetricKey(metric)] = metric;
         }
 
-        public void IncrementGauge(string name, double delta = 1.0)
+        internal void Increment(MetricData metric)
         {
-            _gauges.TryGetValue(name, out var current);
-            _gauges[name] = current + delta;
+            var key = MetricKey(metric);
+            var existing = _metrics.GetOrDefault(key);
+            if (existing == null)
+            {
+                existing = metric;
+            }
+            var incremented = existing.Value + 1;
+            _metrics[key] = existing.WithValue(incremented);
         }
-
-        public void DecrementGauge(string name, double delta = 1.0)
-        {
-            IncrementGauge(name, -delta);
-        }
-
-        // ==== COUNTER ====
-
-        public void IncrementCounter(string name, double amount = 1.0)
-        {
-            _counters.TryGetValue(name, out var current);
-            _counters[name] = current + amount;
-        }
-
-        // ==== EXPORT ====
 
         public string Collect()
         {
             var sb = new StringBuilder();
+            var seenTypes = new HashSet<string>();
 
-            foreach (var kv in _gauges)
+            foreach (var (key, metric) in _metrics)
             {
-                string name = Sanitize(kv.Key);
-                sb.AppendLine($"# TYPE {name} gauge");
-                sb.Append(name).Append(" ").AppendLine(kv.Value.ToString());
+                var metricName = key.Item1;
+                if (!seenTypes.Contains(metricName))
+                {
+                    var metricType = metric.Type.ToString().ToLower();
+                    sb.AppendLine($"# TYPE {metricName} {metricType}");
+                }
+
+                var labelStr = BuildLabelString(metric.Labels);
+                sb.Append(metricName).Append(labelStr).Append(' ')
+                  .AppendLine(metric.Value.ToString());
             }
 
-            foreach (var kv in _counters)
-            {
-                string name = Sanitize(kv.Key);
-                sb.AppendLine($"# TYPE {name} counter");
-                sb.Append(name).Append(" ").AppendLine(kv.Value.ToString());
-            }
             return sb.ToString();
+        }
+
+        private string BuildLabelString(Dictionary<string, string> labels)
+        {
+            if (labels == null || labels.Count == 0)
+                return string.Empty;
+
+            var labelBody = labels
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                .Select(i => Sanitize(i.Key).ToLower() + "=\"" + EscapeLabelValue(i.Value).ToLower() + "\"")
+                .Aggregate((current, next) => current + "," + next);
+
+            return "{" + labelBody + "}";
+        }
+
+        private static string EscapeLabelValue(string value)
+        {
+            return value.Replace(@"\", @"\\").Replace("\"", "\\\"");
         }
 
         private string Sanitize(string name)
         {
             // Replace illegal characters for Prometheus metric names
             return name.Replace(' ', '_').Replace("-", "_");
+        }
+
+        private string ToQueryLabelString(Dictionary<string, string> labels)
+        {
+            if (labels == null || labels.Count == 0)
+                return string.Empty;
+
+            return string.Join("&", labels
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                .Select(kv => $"{Sanitize(kv.Key)}={EscapeLabelValue(kv.Value)}"));
+        }
+
+        private (string, string) MetricKey(MetricData metric)
+        {
+            return (Sanitize(metric.Name), ToQueryLabelString(metric.Labels));
         }
     }
 }
