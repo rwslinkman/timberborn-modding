@@ -15,9 +15,13 @@ namespace PrometheusExporter.Http
             {
                 string goodName = pair.Key;
                 int amount = pair.Value;
+                int capacity = data.GoodCapacities[goodName];
 
-                var metricName = TimberbornPrometheusMetrics.GoodAmount + "_" + goodName.ToLower();
-                metrics.SetGauge(metricName, amount);
+                var metricNameGoodAmount = TimberbornPrometheusMetrics.GoodAmount + "_" + goodName.ToLower();
+                metrics.SetGauge(metricNameGoodAmount, amount);
+
+                var metricNameGoodCapacity = TimberbornPrometheusMetrics.GoodCapacity + "_" + goodName.ToLower();
+                metrics.SetGauge(metricNameGoodCapacity, capacity);
             }
         }
     }

@@ -9,5 +9,6 @@ namespace PrometheusExporter.Http
         public const string ChildBeaverCount = "timberborn_child_beavers";
         public const string TotalBotCount = "timberborn_total_bots";
         public const string GoodAmount = "timberborn_good_amount";
+        public const string GoodCapacity = "timberborn_good_capacity";
     }
 }

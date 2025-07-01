@@ -24,7 +24,8 @@ namespace PrometheusExporter.Metrics
             ResourceCountingService resourceCountingService,
             BeaverPopulation beaverPopulation,
             BotPopulation botPopulation
-        ) {
+        )
+        {
             this.eventBus = bus;
             this.timberbornGoodsService = goodService;
             this.timberbornScienceService = scienceService;
@@ -43,7 +44,7 @@ namespace PrometheusExporter.Metrics
         public void CollectMetrics(CollectMetricsCommand cmd)
         {
             samplesCollected++;
-            
+
             var metrics = new MetricsCollectedEvent();
             metrics.SampleNumber = samplesCollected;
 
@@ -56,9 +57,18 @@ namespace PrometheusExporter.Metrics
             foreach (var goodId in timberbornGoodsService.Goods)
             {
                 var resourceCount = timberbornResourceCountingService.GetGlobalResourceCount(goodId);
+                var resourceCapacity = CalculateTotalCapacity(resourceCount);
                 metrics.GoodAmounts.Add(goodId, resourceCount.TotalStock);
+                metrics.GoodCapacities.Add(goodId, resourceCapacity);
             }
             eventBus.Post(metrics);
+        }
+        
+        private static int CalculateTotalCapacity(ResourceCount resourceCount) {
+            if (resourceCount.FillRate == 0) {
+                return resourceCount.InputOutputCapacity;
+            }
+            return (int) (resourceCount.TotalStock / resourceCount.FillRate);
         }
     }
 }
