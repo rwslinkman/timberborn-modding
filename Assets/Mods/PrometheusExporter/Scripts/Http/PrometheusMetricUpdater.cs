@@ -5,7 +5,7 @@ namespace PrometheusExporter.Http
 {
     class PrometheusMetricUpdater
     {
-        public void updateMetricCollection(MetricsCollectedEvent data, PrometheusMetricsCollection metrics)
+        public void UpdateMetricCollection(MetricsCollectedEvent data, PrometheusMetricsCollection metrics)
         {
             metrics.Set(
                 PrometheusMetrics.Gauge(TimberbornMetrics.SciencePoints).WithValue(data.SciencePoints)
@@ -31,26 +31,18 @@ namespace PrometheusExporter.Http
                 int amount = pair.Value;
                 int capacity = data.GoodCapacities[goodName];
 
-                // With labels
+                // Goods in stock
                 var goodAmountMetric = PrometheusMetrics
                     .Gauge(TimberbornMetrics.GoodsStock)
                     .WithLabel("good", goodName)
                     .WithValue(amount);
                 metrics.Set(goodAmountMetric);
+                // Total goods capacity
                 var goodCapacityMetric = PrometheusMetrics
                     .Gauge(TimberbornMetrics.GoodsCapacity)
                     .WithLabel("good", goodName)
                     .WithValue(capacity);
                 metrics.Set(goodCapacityMetric);
-
-                // No label implementation
-                metrics.Set(
-                    PrometheusMetrics.Gauge(TimberbornMetrics.GoodAmount + "_" + goodName.ToLower(), amount)
-                );
-
-                metrics.Set(
-                    PrometheusMetrics.Gauge(TimberbornMetrics.GoodCapacity + "_" + goodName.ToLower(), capacity)
-                );
             }
         }
     }

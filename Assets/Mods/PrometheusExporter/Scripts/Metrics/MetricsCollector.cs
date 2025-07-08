@@ -43,10 +43,10 @@ namespace PrometheusExporter.Metrics
         [OnEvent]
         public void CollectMetrics(CollectMetricsCommand cmd)
         {
-            samplesCollected++;
+            this.samplesCollected++;
 
             var metrics = new MetricsCollectedEvent();
-            metrics.SampleNumber = samplesCollected;
+            metrics.SampleNumber = this.samplesCollected;
 
             // Collect data from game, store in event class
             metrics.TotalBeaverCount = this.timberbornBeaverPopulation.NumberOfBeavers;
@@ -54,9 +54,9 @@ namespace PrometheusExporter.Metrics
             metrics.ChildBeaverCount = this.timberbornBeaverPopulation.NumberOfChildren;
             metrics.TotalBotCount = this.timberbornBotPopulation.NumberOfBots;
             metrics.SciencePoints = this.timberbornScienceService.SciencePoints;
-            foreach (var goodId in timberbornGoodsService.Goods)
+            foreach (var goodId in this.timberbornGoodsService.Goods)
             {
-                var resourceCount = timberbornResourceCountingService.GetGlobalResourceCount(goodId);
+                var resourceCount = this.timberbornResourceCountingService.GetGlobalResourceCount(goodId);
                 var resourceCapacity = CalculateTotalCapacity(resourceCount);
                 metrics.GoodAmounts.Add(goodId, resourceCount.TotalStock);
                 metrics.GoodCapacities.Add(goodId, resourceCapacity);

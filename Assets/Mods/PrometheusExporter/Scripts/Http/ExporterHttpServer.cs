@@ -29,16 +29,16 @@ namespace PrometheusExporter.Http
 
         public void Load()
         {
-            var port = settings.HttpPort.Value;
+            var port = this.settings.HttpPort.Value;
 
             // Start http listener
-            listener = new HttpListener();
-            listener.Prefixes.Add("http://*:" + port + "/");
-            listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-            listener.Start();
+            this.listener = new HttpListener();
+            this.listener.Prefixes.Add("http://*:" + port + "/");
+            this.listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
+            this.listener.Start();
 
-            listenerThread = new Thread(startListener);
-            listenerThread.Start();
+            this.listenerThread = new Thread(StartListener);
+            this.listenerThread.Start();
             Debug.Log("Prometheus HTTP Server Started");
 
             eventBus.Register(this);
@@ -50,21 +50,21 @@ namespace PrometheusExporter.Http
             this.metricsCollection.Increment(PrometheusMetrics.Counter(TimberbornMetrics.SampleCount));
 
             var updater = new PrometheusMetricUpdater();
-            updater.updateMetricCollection(metricsEvent, metricsCollection);
+            updater.UpdateMetricCollection(metricsEvent, this.metricsCollection);
         }
 
-        private void startListener()
+        private void StartListener()
         {
             while (true)
             {
-                var result = listener.BeginGetContext(ListenerCallback, listener);
+                var result = this.listener.BeginGetContext(ListenerCallback, this.listener);
                 result.AsyncWaitHandle.WaitOne();
             }
         }
 
         private void ListenerCallback(IAsyncResult result)
         {
-            var context = listener.EndGetContext(result);
+            var context = this.listener.EndGetContext(result);
             var request = context.Request;
             var response = context.Response;
 

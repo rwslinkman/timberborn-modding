@@ -10,7 +10,7 @@ namespace PrometheusExporter.Metrics
         private readonly SampleTimeCalculator sampleTimeCalculator;
         private readonly IDayNightCycle dayNightCycle;
         private readonly EventBus eventBus;
-        private float _nextSampleTime;
+        private float nextSampleTime;
 
         public CollectorSamplingTrigger(SampleTimeCalculator calculator, IDayNightCycle cycle, EventBus bus)
         {
@@ -26,7 +26,7 @@ namespace PrometheusExporter.Metrics
 
         public void Tick()
         {
-            if (dayNightCycle.PartialDayNumber >= _nextSampleTime)
+            if (this.dayNightCycle.PartialDayNumber >= this.nextSampleTime)
             {
                 EmitCollectMetricsEvent();
                 CalculateNextSampleTime();
@@ -35,7 +35,7 @@ namespace PrometheusExporter.Metrics
 
         private void CalculateNextSampleTime()
         {
-            _nextSampleTime = sampleTimeCalculator.CalculateNextSampleTime();
+            this.nextSampleTime = this.sampleTimeCalculator.CalculateNextSampleTime();
         }
 
         private void EmitCollectMetricsEvent()

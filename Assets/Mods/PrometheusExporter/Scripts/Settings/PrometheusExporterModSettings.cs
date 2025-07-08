@@ -10,7 +10,6 @@ namespace PrometheusExporter.Settings
         protected override string ModId => "PrometheusExporter";
         public override ModSettingsContext ChangeableOn { get; } = ModSettingsContext.All;
 
-
         public ModSetting<int> SamplesPerDay { get; } = new RangeIntModSetting(
           defaultValue: 3,
           minValue: 1,
